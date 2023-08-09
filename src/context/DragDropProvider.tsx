@@ -6,16 +6,16 @@ import {useConstant, useEvent} from '../hooks';
 
 import {DragDropContext} from './context';
 
-type Events = DragDropEvents<Draggable, Droppable>;
+type Events = DragDropEvents<Draggable, Droppable, DragDropManager>;
 
 export interface Props {
-  onCollision?(event: Events['collision'], manager: DragDropManager): void;
-  onDragStart?(event: Events['dragstart'], manager: DragDropManager): void;
-  onDragOver?(event: Events['dragover'], manager: DragDropManager): void;
-  onDragEnd?(event: Events['dragend'], manager: DragDropManager): void;
+  onCollision?: Events['collision'];
+  onDragStart?: Events['dragstart'];
+  onDragOver?: Events['dragover'];
+  onDragEnd?: Events['dragend'];
 }
 
-export function DndContext({
+export function DragDropProvider({
   children,
   onCollision,
   onDragStart,
