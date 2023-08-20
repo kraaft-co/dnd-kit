@@ -1,11 +1,11 @@
 import {useCallback, useEffect} from 'react';
 import type {Data} from '@dnd-kit/abstract';
-import {DraggableFeedback, Draggable} from '@dnd-kit/dom';
+import {Draggable} from '@dnd-kit/dom';
 import type {DraggableInput} from '@dnd-kit/dom';
+import {useComputed, useConstant, useOnValueChange} from '@dnd-kit/react/hooks';
+import {getCurrentValue, type RefOrValue} from '@dnd-kit/react/utilities';
 
-import {useDragDropManager} from '../context';
-import {useComputed, useConstant, useOnValueChange} from '../hooks';
-import {getCurrentValue, type RefOrValue} from '../utilities';
+import {useDragDropManager} from '../context/index.js';
 
 export interface UseDraggableInput<T extends Data = Data>
   extends Omit<DraggableInput<T>, 'activator' | 'element'> {

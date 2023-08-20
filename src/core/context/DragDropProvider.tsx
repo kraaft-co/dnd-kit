@@ -7,11 +7,15 @@ import {
 import {type DragDropEvents} from '@dnd-kit/abstract';
 import {DragDropManager, defaultPreset} from '@dnd-kit/dom';
 import type {DragDropManagerInput, Draggable, Droppable} from '@dnd-kit/dom';
+import {
+  useConstant,
+  useEvent,
+  useLatest,
+  useOnValueChange,
+} from '@dnd-kit/react/hooks';
 
-import {useConstant, useEvent, useLatest, useOnValueChange} from '../hooks';
-
-import {DragDropContext} from './context';
-import {useRenderer} from './renderer';
+import {DragDropContext} from './context.js';
+import {useRenderer} from './renderer.js';
 
 type Events = DragDropEvents<Draggable, Droppable, DragDropManager>;
 
@@ -40,7 +44,7 @@ export const DragDropProvider = forwardRef<DragDropManager, Props>(
     const manager = useConstant(
       () => new DragDropManager({...input, renderer})
     );
-    const {plugins} = input;
+    const {plugins, modifiers} = input;
     const handleBeforeDragStart = useLatest(onBeforeDragStart);
     const handleDragStart = useEvent(onDragStart);
     const handleDragOver = useLatest(onDragOver);
@@ -81,6 +85,7 @@ export const DragDropProvider = forwardRef<DragDropManager, Props>(
       plugins,
       () => (manager.plugins = plugins ?? defaultPreset.plugins)
     );
+    useOnValueChange(modifiers, () => (manager.modifiers = modifiers ?? []));
 
     useImperativeHandle(ref, () => manager, [manager]);
 

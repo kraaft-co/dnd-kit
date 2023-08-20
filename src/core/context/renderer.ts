@@ -1,7 +1,6 @@
 import {useTransition, useState, useRef} from 'react';
 import type {Renderer} from '@dnd-kit/abstract';
-
-import {useConstant, useOnValueChange} from '../hooks';
+import {useConstant, useOnValueChange} from '@dnd-kit/react/hooks';
 
 export function useRenderer() {
   const [_, startTransition] = useTransition();

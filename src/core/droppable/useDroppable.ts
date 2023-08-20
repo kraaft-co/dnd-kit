@@ -1,12 +1,12 @@
 import {useCallback, useEffect} from 'react';
 import type {Data} from '@dnd-kit/abstract';
 import {Droppable} from '@dnd-kit/dom';
-import type {DroppableInput} from '@dnd-kit/dom';
-
-import {useDragDropManager} from '../context';
-import {useComputed, useConstant, useOnValueChange} from '../hooks';
-import {getCurrentValue, type RefOrValue} from '../utilities';
 import {deepEqual} from '@dnd-kit/state';
+import type {DroppableInput} from '@dnd-kit/dom';
+import {useComputed, useConstant, useOnValueChange} from '@dnd-kit/react/hooks';
+import {getCurrentValue, type RefOrValue} from '@dnd-kit/react/utilities';
+
+import {useDragDropManager} from '../context/index.js';
 
 export interface UseDroppableInput<T extends Data = Data>
   extends Omit<DroppableInput<T>, 'element'> {
