@@ -4,7 +4,7 @@ import {
   untracked,
   type CleanupFunction,
 } from '@dnd-kit/state';
-import {configurator, Plugin} from '@dnd-kit/abstract';
+import { configurator, Plugin } from '@dnd-kit/abstract';
 import {
   animateTransform,
   DOMRectangle,
@@ -21,10 +21,10 @@ import {
   Styles,
   isKeyframeEffect,
 } from '@dnd-kit/dom/utilities';
-import {Coordinates, Rectangle} from '@dnd-kit/geometry';
+import { Coordinates, Rectangle } from '@dnd-kit/geometry';
 
-import type {DragDropManager} from '../../manager/index.ts';
-import type {Draggable} from '../../entities/index.ts';
+import type { DragDropManager } from '../../manager/index.ts';
+import type { Draggable } from '../../entities/index.ts';
 
 import {
   ATTRIBUTE,
@@ -42,6 +42,7 @@ import {
 
 export interface FeedbackOptions {
   rootElement?: Element | ((source: Draggable) => Element);
+  disableDropAnimation?: boolean
 }
 
 interface State {
@@ -49,9 +50,9 @@ interface State {
     translate?: Coordinates;
   };
   initial: {
-    dimensions?: {width: number; height: number};
+    dimensions?: { width: number; height: number };
     coordinates?: Coordinates;
-    frameTransform?: {x: number; y: number; scaleX: number; scaleY: number};
+    frameTransform?: { x: number; y: number; scaleX: number; scaleY: number };
     translate?: Coordinates;
     transformOrigin?: Coordinates;
   };
@@ -74,9 +75,9 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
   }
 
   #render() {
-    const {state, manager, options} = this;
-    const {dragOperation} = manager;
-    const {position, source, status} = dragOperation;
+    const { state, manager, options } = this;
+    const { dragOperation } = manager;
+    const { position, source, status } = dragOperation;
 
     if (status.idle) {
       state.current = {};
@@ -86,13 +87,13 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
 
     if (!source) return;
 
-    const {element, feedback} = source;
+    const { element, feedback } = source;
 
     if (!element || feedback === 'none' || status.initializing) {
       return;
     }
 
-    const {initial} = state;
+    const { initial } = state;
     const feedbackElement = this.overlay ?? element;
     const frameTransform = getFrameTransform(feedbackElement);
     const elementFrameTransform = getFrameTransform(element);
@@ -107,7 +108,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
     };
 
     let cleanup: CleanupFunction | undefined;
-    let {width, height, top, left} = shape;
+    let { width, height, top, left } = shape;
 
     if (crossFrame) {
       width = width / scaleDelta.x;
@@ -115,7 +116,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
     }
 
     const styles = new Styles(feedbackElement);
-    const {transition, translate} = getComputedStyles(element);
+    const { transition, translate } = getComputedStyles(element);
     const clone = feedback === 'clone';
 
     const placeholder =
@@ -147,7 +148,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
       };
     }
 
-    const {transformOrigin} = initial;
+    const { transformOrigin } = initial;
     const relativeTop = top * frameTransform.scaleY + frameTransform.y;
     const relativeLeft = left * frameTransform.scaleX + frameTransform.x;
 
@@ -159,8 +160,8 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
 
       // Compoensate for transformOrigin when scaling
       if (scaleDelta.x !== 1 || scaleDelta.y !== 1) {
-        const {scaleX, scaleY} = elementFrameTransform;
-        const {x: tX, y: tY} = transformOrigin;
+        const { scaleX, scaleY } = elementFrameTransform;
+        const { x: tX, y: tY } = transformOrigin;
 
         initial.coordinates.x += (width * scaleX - width) * tX;
         initial.coordinates.y += (height * scaleY - height) * tY;
@@ -168,7 +169,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
     }
 
     if (!initial.dimensions) {
-      initial.dimensions = {width, height};
+      initial.dimensions = { width, height };
     }
 
     if (!initial.frameTransform) {
@@ -204,7 +205,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
     feedbackElement.setAttribute(ATTRIBUTE, 'true');
 
     const transform = untracked(() => dragOperation.transform);
-    const initialTranslate = initial.translate ?? {x: 0, y: 0};
+    const initialTranslate = initial.translate ?? { x: 0, y: 0 };
     const tX = transform.x * frameTransform.scaleX + initialTranslate.x;
     const tY = transform.y * frameTransform.scaleY + initialTranslate.y;
     const translateString = `${tX}px ${tY}px 0`;
@@ -250,7 +251,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
         frameTransform,
         ignoreTransforms: true,
       });
-      const origin = transformOrigin ?? {x: 1, y: 1};
+      const origin = transformOrigin ?? { x: 1, y: 1 };
       const dX = (width - placeholderShape.width) * origin.x + delta.x;
       const dY = (height - placeholderShape.height) * origin.y + delta.y;
 
@@ -375,7 +376,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
 
     // Update transform on move
     const cleanupEffect = effect(() => {
-      const {transform, status} = dragOperation;
+      const { transform, status } = dragOperation;
 
       if (!transform.x && !transform.y && !state.current.translate) {
         return;
@@ -386,7 +387,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
           ? '250ms cubic-bezier(0.25, 1, 0.5, 1)'
           : '0ms linear';
 
-        const initialTranslate = initial.translate ?? {x: 0, y: 0};
+        const initialTranslate = initial.translate ?? { x: 0, y: 0 };
         const x = transform.x / frameTransform.scaleX + initialTranslate.x;
         const y = transform.y / frameTransform.scaleY + initialTranslate.y;
 
@@ -476,7 +477,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
           };
         }
 
-        if (!translate) {
+        if (!translate || options?.disableDropAnimation) {
           onComplete?.();
           return;
         }
@@ -490,7 +491,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
 
           if (animations.length) {
             animations.forEach((animation) => {
-              const {effect} = animation;
+              const { effect } = animation;
 
               if (
                 isKeyframeEffect(effect) &&
@@ -515,31 +516,31 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
           };
           const heightKeyframes =
             Math.round(current.intrinsicHeight) !==
-            Math.round(final.intrinsicHeight)
+              Math.round(final.intrinsicHeight)
               ? {
-                  minHeight: [
-                    `${current.intrinsicHeight}px`,
-                    `${final.intrinsicHeight}px`,
-                  ],
-                  maxHeight: [
-                    `${current.intrinsicHeight}px`,
-                    `${final.intrinsicHeight}px`,
-                  ],
-                }
+                minHeight: [
+                  `${current.intrinsicHeight}px`,
+                  `${final.intrinsicHeight}px`,
+                ],
+                maxHeight: [
+                  `${current.intrinsicHeight}px`,
+                  `${final.intrinsicHeight}px`,
+                ],
+              }
               : {};
           const widthKeyframes =
             Math.round(current.intrinsicWidth) !==
-            Math.round(final.intrinsicWidth)
+              Math.round(final.intrinsicWidth)
               ? {
-                  minWidth: [
-                    `${current.intrinsicWidth}px`,
-                    `${final.intrinsicWidth}px`,
-                  ],
-                  maxWidth: [
-                    `${current.intrinsicWidth}px`,
-                    `${final.intrinsicWidth}px`,
-                  ],
-                }
+                minWidth: [
+                  `${current.intrinsicWidth}px`,
+                  `${final.intrinsicWidth}px`,
+                ],
+                maxWidth: [
+                  `${current.intrinsicWidth}px`,
+                  `${final.intrinsicWidth}px`,
+                ],
+              }
               : {};
 
           animateTransform({
@@ -572,7 +573,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
   }
 
   #injectStyles() {
-    const {status, source, target} = this.manager.dragOperation;
+    const { status, source, target } = this.manager.dragOperation;
 
     if (status.initialized) {
       const sourceDocument = getDocument(source?.element ?? null);

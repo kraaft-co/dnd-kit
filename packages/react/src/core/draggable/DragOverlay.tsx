@@ -10,9 +10,10 @@ export interface Props {
   children: ReactNode | ((source: Draggable) => ReactNode);
   style?: React.CSSProperties;
   tag?: string;
+  disableDropAnimation?: boolean;
 }
 
-export function DragOverlay({children, className, style, tag}: Props) {
+export function DragOverlay({children, className, style, tag, disableDropAnimation}: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const manager = useDragDropManager();
   const source = useComputed(
@@ -30,11 +31,14 @@ export function DragOverlay({children, className, style, tag}: Props) {
     if (!feedback) return;
 
     feedback.overlay = ref.current;
+    const oldDisableDropAnimation = feedback.options?.disableDropAnimation;
+    feedback.options = {...feedback.options, disableDropAnimation};
 
     return () => {
       feedback.overlay = undefined;
+      feedback.options = {...feedback.options, disableDropAnimation: oldDisableDropAnimation};
     };
-  }, [manager]);
+  }, [manager, disableDropAnimation]);
 
   // Prevent children of the overlay from registering themselves as draggables or droppables
   const patchedManager = useMemo(() => {
