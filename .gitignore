@@ -8,6 +8,7 @@ dist-ssr
 *.local
 .env
 .cache
+mise.toml
 server/dist
 public/dist
 storybook-static/

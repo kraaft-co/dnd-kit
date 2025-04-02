@@ -71,7 +71,7 @@
     "build:utilities": "tsup --entry.utilities src/utilities/index.ts",
     "dev": "bun build:utilities --watch & bun build:core --watch & bun build:sortable --watch & bun build:modifiers --watch & bun build:plugins --watch",
     "lint": "TIMING=1 eslint src/**/*.ts* --fix",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && find -E . -regex '.*\\.(cjs|cjs.map|js|js.map|d.ts|d.cts)' -delete"
   },
   "dependencies": {
     "@dnd-kit/abstract": "^0.0.10",

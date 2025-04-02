@@ -41,7 +41,7 @@
     "build:modifiers": "tsup --entry.modifiers src/modifiers/index.ts",
     "dev": "bun build:core --watch & bun build:modifiers --watch",
     "lint": "TIMING=1 eslint src/**/*.ts* --fix",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && find -E . -regex '.*\\.(cjs|cjs.map|js|js.map|d.ts|d.cts)' -delete"
   },
   "dependencies": {
     "@dnd-kit/geometry": "^0.0.10",
