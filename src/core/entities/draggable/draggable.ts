@@ -15,6 +15,7 @@ export interface Input<T extends Data = Data> extends DraggableInput<T> {
   handle?: Element;
   element?: Element;
   feedback?: FeedbackType;
+  disableDropAnimation?: boolean;
   sensors?: Sensors;
 }
 
@@ -28,6 +29,7 @@ export class Draggable<T extends Data = Data> extends AbstractDraggable<
       effects = () => [],
       handle,
       feedback = 'default',
+      disableDropAnimation,
       ...input
     }: Input<T>,
     manager: DragDropManager | undefined
@@ -69,6 +71,7 @@ export class Draggable<T extends Data = Data> extends AbstractDraggable<
     this.element = element;
     this.handle = handle;
     this.feedback = feedback;
+    this.disableDropAnimation = disableDropAnimation;
   }
 
   @reactive
@@ -79,4 +82,7 @@ export class Draggable<T extends Data = Data> extends AbstractDraggable<
 
   @reactive
   public accessor feedback: FeedbackType;
+
+  @reactive
+  public accessor disableDropAnimation: boolean | undefined;
 }

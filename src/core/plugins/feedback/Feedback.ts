@@ -476,7 +476,7 @@ export class Feedback extends Plugin<DragDropManager, FeedbackOptions> {
           };
         }
 
-        if (!translate) {
+        if (!translate || source.disableDropAnimation) {
           onComplete?.();
           return;
         }
