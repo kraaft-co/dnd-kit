@@ -53,6 +53,10 @@ export function useDraggable<T extends Data = Data>(
     () => (draggable.feedback = input.feedback ?? 'default')
   );
   useOnValueChange(
+    input.feedback,
+    () => (draggable.disableDropAnimation = input.disableDropAnimation)
+  );
+  useOnValueChange(
     input.alignment,
     () => (draggable.alignment = input.alignment)
   );
