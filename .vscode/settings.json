@@ -2,28 +2,28 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "search.exclude": {
-    "**/dist": true,
+    "**/dist": false,
     "**/.cache": true,
-    "packages/**/*.js": true,
-    "packages/**/*.js.map": true,
-    "packages/**/*.cjs": true,
-    "packages/**/*.cjs.map": true,
-    "packages/**/*.d.ts": true,
-    "packages/**/*.d.cts": true
+    "packages/**/*.js": false,
+    "packages/**/*.js.map": false,
+    "packages/**/*.cjs": false,
+    "packages/**/*.cjs.map": false,
+    "packages/**/*.d.ts": false,
+    "packages/**/*.d.cts": false
   },
   "files.exclude": {
-    "**/dist": true,
+    "**/dist": false,
     "**/node_modules": true,
     "**/.git": true,
     "**/.cache": true,
     "**/.DS_Store": true,
     "**/coverage": true,
     "**/storybook-static": true,
-    "packages/**/*.js": true,
-    "packages/**/*.js.map": true,
-    "packages/**/*.cjs": true,
-    "packages/**/*.cjs.map": true,
-    "packages/**/*.d.ts": true,
-    "packages/**/*.d.cts": true
+    "packages/**/*.js": false,
+    "packages/**/*.js.map": false,
+    "packages/**/*.cjs": false,
+    "packages/**/*.cjs.map": false,
+    "packages/**/*.d.ts": false,
+    "packages/**/*.d.cts": false
   }
 }

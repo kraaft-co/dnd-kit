@@ -3,7 +3,6 @@ node_modules
 .turbo
 *.log
 .next
-dist
 dist-ssr
 *.local
 .env
@@ -12,9 +11,3 @@ mise.toml
 server/dist
 public/dist
 storybook-static/
-/packages/**/*.js
-/packages/**/*.js.map
-/packages/**/*.cjs
-/packages/**/*.cjs.map
-/packages/**/*.d.ts
-/packages/**/*.d.cts
