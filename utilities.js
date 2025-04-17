@@ -628,6 +628,93 @@ function getScale(element, boundingRectangle = element.getBoundingClientRect()) 
   };
 }
 
+// src/utilities/transform/parseScale.ts
+function parseScale(scale) {
+  if (scale === "none") {
+    return null;
+  }
+  const values = scale.split(" ");
+  const x = parseFloat(values[0]);
+  const y = parseFloat(values[1]);
+  if (isNaN(x) && isNaN(y)) {
+    return null;
+  }
+  return {
+    x: isNaN(x) ? y : x,
+    y: isNaN(y) ? x : y
+  };
+}
+
+// src/utilities/transform/parseTranslate.ts
+function parseTranslate(translate) {
+  if (translate === "none") {
+    return null;
+  }
+  const [x, y, z = "0"] = translate.split(" ");
+  const output = { x: parseFloat(x), y: parseFloat(y), z: parseInt(z, 10) };
+  if (isNaN(output.x) && isNaN(output.y)) {
+    return null;
+  }
+  return {
+    x: isNaN(output.x) ? 0 : output.x,
+    y: isNaN(output.y) ? 0 : output.y,
+    z: isNaN(output.z) ? 0 : output.z
+  };
+}
+
+// src/utilities/transform/parseTransform.ts
+function parseTransform(computedStyles) {
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+  const { scale, transform, translate } = computedStyles;
+  const parsedScale = parseScale(scale);
+  const parsedTranslate = parseTranslate(translate);
+  const parsedMatrix = parseTransformMatrix(transform);
+  if (!parsedMatrix && !parsedScale && !parsedTranslate) {
+    return null;
+  }
+  const normalizedScale = {
+    x: (_a = parsedScale == null ? void 0 : parsedScale.x) != null ? _a : 1,
+    y: (_b = parsedScale == null ? void 0 : parsedScale.y) != null ? _b : 1
+  };
+  const normalizedTranslate = {
+    x: (_c = parsedTranslate == null ? void 0 : parsedTranslate.x) != null ? _c : 0,
+    y: (_d = parsedTranslate == null ? void 0 : parsedTranslate.y) != null ? _d : 0
+  };
+  const normalizedMatrix = {
+    x: (_e = parsedMatrix == null ? void 0 : parsedMatrix.x) != null ? _e : 0,
+    y: (_f = parsedMatrix == null ? void 0 : parsedMatrix.y) != null ? _f : 0,
+    scaleX: (_g = parsedMatrix == null ? void 0 : parsedMatrix.scaleX) != null ? _g : 1,
+    scaleY: (_h = parsedMatrix == null ? void 0 : parsedMatrix.scaleY) != null ? _h : 1
+  };
+  return {
+    x: normalizedTranslate.x + normalizedMatrix.x,
+    y: normalizedTranslate.y + normalizedMatrix.y,
+    z: (_i = parsedTranslate == null ? void 0 : parsedTranslate.z) != null ? _i : 0,
+    scaleX: normalizedScale.x * normalizedMatrix.scaleX,
+    scaleY: normalizedScale.y * normalizedMatrix.scaleY
+  };
+}
+function parseTransformMatrix(transform) {
+  if (transform.startsWith("matrix3d(")) {
+    const transformArray = transform.slice(9, -1).split(/, /);
+    return {
+      x: +transformArray[12],
+      y: +transformArray[13],
+      scaleX: +transformArray[0],
+      scaleY: +transformArray[5]
+    };
+  } else if (transform.startsWith("matrix(")) {
+    const transformArray = transform.slice(7, -1).split(/, /);
+    return {
+      x: +transformArray[4],
+      y: +transformArray[5],
+      scaleX: +transformArray[0],
+      scaleY: +transformArray[3]
+    };
+  }
+  return null;
+}
+
 // src/utilities/scroll/detectScrollIntent.ts
 var ScrollDirection = /* @__PURE__ */ ((ScrollDirection2) => {
   ScrollDirection2[ScrollDirection2["Idle"] = 0] = "Idle";
@@ -647,6 +734,10 @@ function detectScrollIntent(scrollableElement, coordinates, intent, acceleration
   const { x, y } = coordinates;
   const { rect, isTop, isBottom, isLeft, isRight } = getScrollPosition(scrollableElement);
   const frameTransform = getFrameTransform(scrollableElement);
+  const computedStyles = getComputedStyles(scrollableElement);
+  const parsedTransform = parseTransform(computedStyles);
+  const isXAxisInverted = parsedTransform !== null ? (parsedTransform == null ? void 0 : parsedTransform.scaleX) < 0 : false;
+  const isYAxisInverted = parsedTransform !== null ? (parsedTransform == null ? void 0 : parsedTransform.scaleY) < 0 : false;
   const scrollContainerRect = new Rectangle(
     rect.left * frameTransform.scaleX + frameTransform.x,
     rect.top * frameTransform.scaleY + frameTransform.y,
@@ -665,24 +756,24 @@ function detectScrollIntent(scrollableElement, coordinates, intent, acceleration
     height: scrollContainerRect.height * thresholdPercentage.y,
     width: scrollContainerRect.width * thresholdPercentage.x
   };
-  if (!isTop && y <= scrollContainerRect.top + threshold2.height && (intent == null ? void 0 : intent.y) !== 1 /* Forward */ && x >= scrollContainerRect.left - tolerance.x && x <= scrollContainerRect.right + tolerance.x) {
-    direction.y = -1 /* Reverse */;
+  if ((!isTop || isYAxisInverted && !isBottom) && y <= scrollContainerRect.top + threshold2.height && (intent == null ? void 0 : intent.y) !== 1 /* Forward */ && x >= scrollContainerRect.left - tolerance.x && x <= scrollContainerRect.right + tolerance.x) {
+    direction.y = isYAxisInverted ? 1 /* Forward */ : -1 /* Reverse */;
     speed.y = acceleration * Math.abs(
       (scrollContainerRect.top + threshold2.height - y) / threshold2.height
     );
-  } else if (!isBottom && y >= scrollContainerRect.bottom - threshold2.height && (intent == null ? void 0 : intent.y) !== -1 /* Reverse */ && x >= scrollContainerRect.left - tolerance.x && x <= scrollContainerRect.right + tolerance.x) {
-    direction.y = 1 /* Forward */;
+  } else if ((!isBottom || isYAxisInverted && !isTop) && y >= scrollContainerRect.bottom - threshold2.height && (intent == null ? void 0 : intent.y) !== -1 /* Reverse */ && x >= scrollContainerRect.left - tolerance.x && x <= scrollContainerRect.right + tolerance.x) {
+    direction.y = isYAxisInverted ? -1 /* Reverse */ : 1 /* Forward */;
     speed.y = acceleration * Math.abs(
       (scrollContainerRect.bottom - threshold2.height - y) / threshold2.height
     );
   }
-  if (!isRight && x >= scrollContainerRect.right - threshold2.width && (intent == null ? void 0 : intent.x) !== -1 /* Reverse */ && y >= scrollContainerRect.top - tolerance.y && y <= scrollContainerRect.bottom + tolerance.y) {
-    direction.x = 1 /* Forward */;
+  if ((!isRight || isXAxisInverted && !isLeft) && x >= scrollContainerRect.right - threshold2.width && (intent == null ? void 0 : intent.x) !== -1 /* Reverse */ && y >= scrollContainerRect.top - tolerance.y && y <= scrollContainerRect.bottom + tolerance.y) {
+    direction.x = isXAxisInverted ? 1 /* Forward */ : -1 /* Reverse */;
     speed.x = acceleration * Math.abs(
       (scrollContainerRect.right - threshold2.width - x) / threshold2.width
     );
-  } else if (!isLeft && x <= scrollContainerRect.left + threshold2.width && (intent == null ? void 0 : intent.x) !== 1 /* Forward */ && y >= scrollContainerRect.top - tolerance.y && y <= scrollContainerRect.bottom + tolerance.y) {
-    direction.x = -1 /* Reverse */;
+  } else if ((!isLeft || isXAxisInverted && !isRight) && x <= scrollContainerRect.left + threshold2.width && (intent == null ? void 0 : intent.x) !== 1 /* Forward */ && y >= scrollContainerRect.top - tolerance.y && y <= scrollContainerRect.bottom + tolerance.y) {
+    direction.x = isXAxisInverted ? -1 /* Reverse */ : 1 /* Forward */;
     speed.x = acceleration * Math.abs(
       (scrollContainerRect.left + threshold2.width - x) / threshold2.width
     );
@@ -845,23 +936,6 @@ function isKeyframeEffect(effect) {
   return "getKeyframes" in effect && typeof effect.getKeyframes === "function";
 }
 
-// src/utilities/transform/parseTranslate.ts
-function parseTranslate(translate) {
-  if (translate === "none") {
-    return null;
-  }
-  const [x, y, z = "0"] = translate.split(" ");
-  const output = { x: parseFloat(x), y: parseFloat(y), z: parseInt(z, 10) };
-  if (isNaN(output.x) && isNaN(output.y)) {
-    return null;
-  }
-  return {
-    x: isNaN(output.x) ? 0 : output.x,
-    y: isNaN(output.y) ? 0 : output.y,
-    z: isNaN(output.z) ? 0 : output.z
-  };
-}
-
 // src/utilities/transform/computeTranslate.ts
 function getFinalKeyframe(element, match) {
   const animations = element.getAnimations();
@@ -900,76 +974,6 @@ function computeTranslate(element, translate = getComputedStyles(element).transl
     }
   }
   return { x: 0, y: 0, z: 0 };
-}
-
-// src/utilities/transform/parseScale.ts
-function parseScale(scale) {
-  if (scale === "none") {
-    return null;
-  }
-  const values = scale.split(" ");
-  const x = parseFloat(values[0]);
-  const y = parseFloat(values[1]);
-  if (isNaN(x) && isNaN(y)) {
-    return null;
-  }
-  return {
-    x: isNaN(x) ? y : x,
-    y: isNaN(y) ? x : y
-  };
-}
-
-// src/utilities/transform/parseTransform.ts
-function parseTransform(computedStyles) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
-  const { scale, transform, translate } = computedStyles;
-  const parsedScale = parseScale(scale);
-  const parsedTranslate = parseTranslate(translate);
-  const parsedMatrix = parseTransformMatrix(transform);
-  if (!parsedMatrix && !parsedScale && !parsedTranslate) {
-    return null;
-  }
-  const normalizedScale = {
-    x: (_a = parsedScale == null ? void 0 : parsedScale.x) != null ? _a : 1,
-    y: (_b = parsedScale == null ? void 0 : parsedScale.y) != null ? _b : 1
-  };
-  const normalizedTranslate = {
-    x: (_c = parsedTranslate == null ? void 0 : parsedTranslate.x) != null ? _c : 0,
-    y: (_d = parsedTranslate == null ? void 0 : parsedTranslate.y) != null ? _d : 0
-  };
-  const normalizedMatrix = {
-    x: (_e = parsedMatrix == null ? void 0 : parsedMatrix.x) != null ? _e : 0,
-    y: (_f = parsedMatrix == null ? void 0 : parsedMatrix.y) != null ? _f : 0,
-    scaleX: (_g = parsedMatrix == null ? void 0 : parsedMatrix.scaleX) != null ? _g : 1,
-    scaleY: (_h = parsedMatrix == null ? void 0 : parsedMatrix.scaleY) != null ? _h : 1
-  };
-  return {
-    x: normalizedTranslate.x + normalizedMatrix.x,
-    y: normalizedTranslate.y + normalizedMatrix.y,
-    z: (_i = parsedTranslate == null ? void 0 : parsedTranslate.z) != null ? _i : 0,
-    scaleX: normalizedScale.x * normalizedMatrix.scaleX,
-    scaleY: normalizedScale.y * normalizedMatrix.scaleY
-  };
-}
-function parseTransformMatrix(transform) {
-  if (transform.startsWith("matrix3d(")) {
-    const transformArray = transform.slice(9, -1).split(/, /);
-    return {
-      x: +transformArray[12],
-      y: +transformArray[13],
-      scaleX: +transformArray[0],
-      scaleY: +transformArray[5]
-    };
-  } else if (transform.startsWith("matrix(")) {
-    const transformArray = transform.slice(7, -1).split(/, /);
-    return {
-      x: +transformArray[4],
-      y: +transformArray[5],
-      scaleX: +transformArray[0],
-      scaleY: +transformArray[3]
-    };
-  }
-  return null;
 }
 
 // src/utilities/shapes/DOMRectangle.ts
