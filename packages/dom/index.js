@@ -1434,6 +1434,10 @@ var _PointerSensor = class _PointerSensor extends Sensor {
       event.stopPropagation();
       const canceled = !status.initialized;
       this.manager.actions.stop({ event, canceled });
+    } else if (status.initializing) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.manager.actions.stop({ event, canceled: true });
     }
     this.cleanup.forEach((cleanup) => cleanup());
     this.cleanup.clear();
