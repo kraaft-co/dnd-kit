@@ -250,6 +250,10 @@ export class PointerSensor extends Sensor<
 
       const canceled = !status.initialized;
       this.manager.actions.stop({event, canceled});
+    } else if (status.initializing) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.manager.actions.stop({event, canceled: true});
     }
 
     // Remove the pointer move and up event listeners
