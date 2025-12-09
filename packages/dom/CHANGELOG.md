@@ -1,5 +1,35 @@
 # @dnd-kit/dom
 
+## 0.2.0
+
+### Minor Changes
+
+- [#1821](https://github.com/clauderic/dnd-kit/pull/1821) [`e95a9c8`](https://github.com/clauderic/dnd-kit/commit/e95a9c8f448d6b339e0b6fd37546ac7cfdf18edb) Thanks [@clauderic](https://github.com/clauderic)! - - Refactor `PointerSensor` to use the new activation primitives.
+
+  - Add `PointerActivationConstraints` with composable constraints:
+    - `PointerActivationConstraints.Delay({value, tolerance})`
+    - `PointerActivationConstraints.Distance({value, tolerance?})`
+  - Update `PointerSensor.defaults.activationConstraints(...)`:
+    - Mouse on handle: activates immediately.
+    - Touch: Delay 250ms with 5px tolerance.
+    - Text inputs: Delay 200ms with 0px tolerance.
+    - Other pointer types: Delay 200ms with 10px tolerance + Distance 5px.
+  - New utilities:
+    - `getDocuments()` returns all same-origin documents (enables listening across iframes).
+    - `getEventCoordinates(event)` returns `{x, y}` from a `PointerEvent`.
+  - `PointerSensor` now binds listeners across same-origin documents and improves default prevention during drag.
+  - Internal cleanups: remove internal `sensors/pointer/index.ts` and `utilities/execution-context/index.ts` (no public API impact).
+
+  These changes are additive and should be non-breaking. If you were composing pointer activation constraints, migrate to the new `PointerActivationConstraints` classes if you were importing internal implementations.
+
+### Patch Changes
+
+- Updated dependencies [[`e95a9c8`](https://github.com/clauderic/dnd-kit/commit/e95a9c8f448d6b339e0b6fd37546ac7cfdf18edb)]:
+  - @dnd-kit/abstract@0.2.0
+  - @dnd-kit/collision@0.2.0
+  - @dnd-kit/geometry@0.2.0
+  - @dnd-kit/state@0.2.0
+
 ## 0.1.21
 
 ### Patch Changes
