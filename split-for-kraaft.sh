@@ -1,0 +1,1 @@
+H=$(git rev-parse --short HEAD); for p in abstract collision dom geometry helpers react state; do git subtree split --prefix=packages/$p -b split/$p-$H && git push origin split/$p-$H; done
